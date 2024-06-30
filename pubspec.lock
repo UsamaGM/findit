@@ -456,6 +456,14 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "2.1.1"
+  linux:
+    dependency: "direct main"
+    description:
+      name: linux
+      sha256: "19ec599a599e39d41cc443c9e39429ba300b812e3a3229131e82ab6e55ec6410"
+      url: "https://pub.dev"
+    source: hosted
+    version: "0.0.0"
   matcher:
     dependency: transitive
     description:

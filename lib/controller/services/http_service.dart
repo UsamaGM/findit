@@ -6,8 +6,8 @@ import 'package:http/http.dart';
 class HttpService {
   static const host = "localhost";
   static const port = 3000;
-  // static const server = "https://outgoing-endlessly-locust.ngrok-free.app";
-  static const server = "http://$host:$port";
+  static const server = "https://outgoing-endlessly-locust.ngrok-free.app";
+  // static const server = "http://$host:$port";
   static const headers = <String, String>{
     'Content-Type': 'application/json; charset=UTF-8',
   };

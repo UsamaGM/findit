@@ -124,7 +124,7 @@ class _HomeScreenState extends State<HomeScreen> {
           });
         }
       }
-    } on SocketException catch (_) {
+    } catch (_) {
       if (mounted) {
         showErrorDialog(
           context,
@@ -166,7 +166,7 @@ class _HomeScreenState extends State<HomeScreen> {
           showErrorDialog(context, "Error loading data");
         }
       }
-    } on SocketException catch (_) {
+    } catch (_) {
       if (mounted) {
         showErrorDialog(
           context,

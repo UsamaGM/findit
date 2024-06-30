@@ -32,7 +32,8 @@ class _RegisterPageState extends State<RegisterPage> {
   bool isEmailVerified = false;
   bool isPhoneVerified = false;
 
-  late int? otp;
+  int? otp;
+  bool isOtpSent = false;
   late final User user;
 
   get emailSuffixIcon =>
@@ -162,19 +163,49 @@ class _RegisterPageState extends State<RegisterPage> {
     if (emailController.text.contains(RegExp(
       r"^[a-zA-Z0-9.a-zA-Z0-9.!#$%&'*+-/=?^_`{|}~]+@[a-zA-Z0-9]+\.[a-zA-z]+",
     ))) {
-      showFullScreenDialog(context);
-      final authService = context.read<AuthService>();
-      final response = await authService.verifyEmail(
-        email: emailController.text,
-        forgot: false,
-      );
-      if (mounted) {
-        Navigator.pop(context);
-      }
-      if (response == -1 && mounted) {
-        showErrorSnackBar(context, "Email already taken");
-      } else if (mounted) {
-        otp = response;
+      if (!isOtpSent) {
+        showFullScreenDialog(context);
+        final authService = context.read<AuthService>();
+        try {
+          final response = await authService.verifyEmail(
+            email: emailController.text,
+            forgot: false,
+          );
+          if (mounted) {
+            Navigator.pop(context);
+          }
+          if (response == -1 && mounted) {
+            showErrorSnackBar(context, "Email already taken");
+          } else {
+            otp = response['otp'];
+          }
+
+          showPinDialog(
+            context: context,
+            text: "Enter 4 digit PIN sent to the given email address",
+            pinController: pinController,
+            onComplete: (value) {
+              if (value == otp.toString()) {
+                pinController.clear();
+                Navigator.pop(context);
+                setState(() {
+                  isEmailVerified = true;
+                });
+              } else {
+                pinController.clear();
+                Navigator.pop(context);
+                showErrorDialog(context, "Invalid PIN entered");
+              }
+            },
+          );
+          isOtpSent = true;
+        } catch (_) {
+          showErrorDialog(
+            context,
+            "Error sending email. Please try again in a moment",
+          );
+        }
+      } else {
         showPinDialog(
           context: context,
           text: "Enter 4 digit PIN sent to the given email address",
@@ -186,6 +217,10 @@ class _RegisterPageState extends State<RegisterPage> {
               setState(() {
                 isEmailVerified = true;
               });
+            } else {
+              pinController.clear();
+              Navigator.pop(context);
+              showErrorDialog(context, "Invalid PIN entered");
             }
           },
         );
@@ -199,9 +234,7 @@ class _RegisterPageState extends State<RegisterPage> {
       final response = await context
           .read<AuthService>()
           .verifyPhone(phone: phoneNumberController.text);
-      if (mounted) {
-        Navigator.pop(context);
-      }
+
       if (response! && mounted) {
         showErrorSnackBar(context, "Phone number already taken");
       } else if (mounted) {
@@ -216,10 +249,16 @@ class _RegisterPageState extends State<RegisterPage> {
               setState(() {
                 isPhoneVerified = true;
               });
+            } else {
+              pinController.clear();
+              Navigator.pop(context);
+              showErrorDialog(context, "Incorrect PIN entered");
             }
           },
         );
       }
+    } else {
+      showErrorDialog(context, "Enter a valid phone number");
     }
   }
 
